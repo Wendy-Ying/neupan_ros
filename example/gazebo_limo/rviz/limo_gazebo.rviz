@@ -294,7 +294,7 @@ Visualization Manager:
   Global Options:
     Background Color: 255; 255; 255
     Default Light: true
-    Fixed Frame: odom
+    Fixed Frame: livox_frame
     Frame Rate: 30
   Name: root
   Tools:
