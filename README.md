@@ -3,10 +3,13 @@
 This is the ROS wrapper for [NeuPAN Planner](https://github.com/hanruihua/neupan).
 
 ## Prerequisites
-
+- Ubuntu 20.04
 - ROS Noetic
 - Python >= 3.10
-- [NeuPAN Planner](https://github.com/hanruihua/neupan).
+- Installed [NeuPAN Planner](https://github.com/hanruihua/neupan).
+
+> [!Note] 
+> If you want to use python3.8 to run this project without virtual environment, you can install the py38 branch of NeuPAN Planner: https://github.com/hanruihua/NeuPAN/tree/py38
 
 ## Installation
 
@@ -69,10 +72,13 @@ ROS Parameters
 | `~refresh_initial_path` | `bool` / `False`     | Whether to refresh the initial path.                     |
 | `~flip_angle`           | `bool` / `False`     | Whether to flip the angle of the scan data.              |
 
+## License
+
+This project is licensed under the [GNU General Public License v3.0](LICENSE).
 
 ## Citation
 
-If you find this code or paper is helpful, you can **star** this repository and cite our paper by the following **BibTeX** entry:
+If you find this code or paper is helpful, please kindly star :star: this repository and cite our paper by the following BibTeX entry:
 
 ```bibtex
 @ARTICLE{10938329,
@@ -80,9 +86,9 @@ If you find this code or paper is helpful, you can **star** this repository and 
   journal={IEEE Transactions on Robotics}, 
   title={NeuPAN: Direct Point Robot Navigation With End-to-End Model-Based Learning}, 
   year={2025},
-  volume={},
+  volume={41},
   number={},
-  pages={1-20},
+  pages={2804-2824},
   doi={10.1109/TRO.2025.3554252}}
 ```
 
