@@ -8,7 +8,7 @@ def main():
     br = tf.TransformBroadcaster()
     rate = rospy.Rate(10)
 
-    translation = (0.2, 0.0, 0.1)
+    translation = (0.0, 0.0, 0.0)
     rotation = quaternion_from_euler(0, 0, 0)
 
     while not rospy.is_shutdown():
@@ -17,7 +17,7 @@ def main():
             rotation,
             rospy.Time.now(),
             "livox_frame",
-            "base_link"
+            "os_sensor"
         )
         rate.sleep()
 
