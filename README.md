@@ -14,12 +14,12 @@ This is the ROS wrapper for [NeuPAN Planner](https://github.com/hanruihua/neupan
 ## Installation
 
 ```bash
-mkdir -p ~/neupan_ws/src
-cd ~/neupan_ws/src
+mkdir -p ~/yiwen_ws/src
+cd ~/yiwen_ws/src
 git clone https://github.com/hanruihua/neupan_ros
-cd ~/neupan_ws && catkin_make
-cd ~/neupan_ws/src/neupan_ros 
-sh source_setup.sh && source ~/neupan_ws/devel/setup.sh && rosdep install neupan_ros 
+cd ~/yiwen_ws && catkin_make
+cd ~/yiwen_ws/src/neupan_ros 
+sh source_setup.sh && source ~/yiwen_ws/devel/setup.sh && rosdep install neupan_ros 
 ```
 
 ## Demonstration

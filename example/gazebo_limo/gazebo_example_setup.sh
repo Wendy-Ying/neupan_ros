@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ~/neupan_ws/src
+cd ~/yiwen_ws/src
 
 # Clone rvo_ros repository
 if [ ! -d "rvo_ros" ]; then
@@ -10,9 +10,9 @@ else
 fi
 
 if [ -n "$($SHELL -c 'echo $ZSH_VERSION')" ]; then
-  echo "export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:~/neupan_ws/devel/lib " >> ~/.zshrc
+  echo "export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:~/yiwen_ws/devel/lib " >> ~/.zshrc
 elif [ -n "$($SHELL -c 'echo $BASH_VERSION')" ]; then
-  echo "export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:~/neupan_ws/devel/lib " >> ~/.bashrc
+  echo "export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:~/yiwen_ws/devel/lib " >> ~/.bashrc
 fi
 
 # Clone limo_ros repository
@@ -23,7 +23,7 @@ else
 fi
 
 # Build the workspace
-cd ~/neupan_ws
+cd ~/yiwen_ws
 catkin_make
 
 
