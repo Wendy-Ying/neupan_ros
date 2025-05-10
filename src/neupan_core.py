@@ -31,6 +31,8 @@ import numpy as np
 from neupan.util import get_transform
 import tf
 import sensor_msgs.point_cloud2 as pc2
+from predict import get_velocity
+from collections import deque
 
 
 class neupan_core:
@@ -69,12 +71,17 @@ class neupan_core:
         self.neupan_planner = neupan.init_from_yaml(
             self.planner_config_file, pan=pan
         )
+
+        self.frame_buffer = deque(maxlen=5)
+        self.time_buffer = deque(maxlen=5)
+
         # print()
 
         # data
         self.obstacle_points = None  # (2, n)  n number of points
         self.robot_state = None  # (3, 1) [x, y, theta]
         self.stop = False
+        self.last_scan_msg = None
 
         # publisher
         self.vel_pub = rospy.Publisher("/neupan_cmd_vel", Twist, queue_size=10)
@@ -160,7 +167,16 @@ class neupan_core:
                     1, "No obstacle points, only path tracking task will be performed"
                 )
 
-            action, info = self.neupan_planner(self.robot_state, self.obstacle_points)
+            # action, info = self.neupan_planner(self.robot_state, self.obstacle_points)
+
+            points, point_velocities = get_velocity(
+                self.last_scan_msg,
+                self.robot_state,
+                self.frame_buffer,
+                self.time_buffer
+            )
+
+            action, info = self.neupan_planner(self.robot_state, points, point_velocities)
 
             self.stop = info["stop"]
             self.arrive = info["arrive"]
@@ -190,6 +206,7 @@ class neupan_core:
 
     # scan callback
     def scan_callback(self, scan_msg):
+        self.last_scan_msg = np.array(scan_msg.ranges)
 
         if self.robot_state is None:
             return None
