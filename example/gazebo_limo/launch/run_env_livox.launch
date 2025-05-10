@@ -1,0 +1,10 @@
+<launch>
+    <include file="$(find livox_ros_driver2)/launch_ROS1/msg_MID360.launch" />
+
+    <node name="livox_to_laser_scan" pkg="neupan_ros" type="livox_to_laser_scan.py" output="screen">
+    </node>
+
+    <node name="livox_tf_broadcaster" pkg="neupan_ros" type="livox_tf_broadcaster.py" output="screen">
+    </node>
+
+</launch>
