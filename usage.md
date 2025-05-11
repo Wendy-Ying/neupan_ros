@@ -6,6 +6,7 @@ roslaunch neupan_ros gazebo_limo_env_complex_20.launch
 ## real world
 ```
 ./hanjing_scripts/bringup_scout.sh
+roslaunch vrpn_client_ros sample.launch server:=192.168.1.109
 ```
 ```
 roslaunch neupan_ros run_env_livox.launch
