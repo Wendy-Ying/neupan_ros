@@ -31,8 +31,7 @@ import numpy as np
 from neupan.util import get_transform
 import tf
 import sensor_msgs.point_cloud2 as pc2
-from predict import process_lidar_frame
-
+from get_velocity import process_lidar_frame
 
 class neupan_core:
     def __init__(self) -> None:
@@ -77,6 +76,7 @@ class neupan_core:
         self.robot_state = None  # (3, 1) [x, y, theta]
         self.stop = False
         self.last_scan_msg = None
+        self.helmet_msg = None
 
         # publisher
         self.vel_pub = rospy.Publisher("/neupan_cmd_vel", Twist, queue_size=10)
@@ -103,6 +103,7 @@ class neupan_core:
         rospy.Subscriber("/scan", LaserScan, self.scan_callback)
         rospy.Subscriber("/initial_path", Path, self.path_callback)
         rospy.Subscriber("/neupan_goal", PoseStamped, self.goal_callback)
+        rospy.Subscriber("/helmet_state", Twist, self.helmet_callback, queue_size=1)
         
 
     def run(self):
@@ -166,7 +167,8 @@ class neupan_core:
 
             points, point_velocities = process_lidar_frame(
                 self.last_scan_msg,
-                self.robot_state
+                self.robot_state,
+                self.helmet_msg
             )
 
             action, info = self.neupan_planner(self.robot_state, points, point_velocities)
@@ -260,6 +262,10 @@ class neupan_core:
                 ),
             )
             return
+    
+    def helmet_callback(self, msg):
+        self.helmet_msg = msg
+        return
 
     def path_callback(self, path):
 
