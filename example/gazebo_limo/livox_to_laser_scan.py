@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import rospy
-from sensor_msgs.msg import LaserScan
-from livox_ros_driver2.msg import CustomMsg, CustomPoint
+from sensor_msgs.msg import LaserScan, PointCloud2
+import sensor_msgs.point_cloud2 as pc2
+# from livox_ros_driver2.msg import CustomMsg, CustomPoint
 import math
 
 class LivoxToLaserScan:
@@ -16,7 +17,8 @@ class LivoxToLaserScan:
         self.z_max = 0.4
         self.num_ranges = int((self.angle_max - self.angle_min) / self.angle_increment)
         self.scan_pub = rospy.Publisher('/limo/scan', LaserScan, queue_size=1)
-        rospy.Subscriber('/livox/lidar', CustomMsg, self.callback)
+        # rospy.Subscriber('/livox/lidar', CustomMsg, self.callback)
+        rospy.Subscriber('/cloud_registered_body', PointCloud2, self.callback)
 
     def gaussian_filter(self, data, window_size=5, sigma=0.1):
         filtered = []
@@ -41,12 +43,49 @@ class LivoxToLaserScan:
                 filtered.append(data[i])
         return filtered
 
-    def callback(self, msg):
-        ranges = [float('inf')] * self.num_ranges
+    def cluster_filter_by_distance(self, ranges, angle_increment, distance_thresh=0.3, min_cluster_size=3):
+        clusters = []
+        current_cluster = []
         
-        for point in msg.points:
-            x, y, z = point.x, point.y, point.z
+        prev_index = None
 
+        for i, r in enumerate(ranges):
+            if r == 0.0 or r == float('inf'):
+                if len(current_cluster) >= min_cluster_size:
+                    clusters.append(current_cluster)
+                current_cluster = []
+                prev_index = None
+                continue
+            
+            if prev_index is None:
+                current_cluster = [i]
+            else:
+                angle_diff = abs(i - prev_index) * angle_increment
+                dist_diff = abs(r - ranges[prev_index])
+                if dist_diff < distance_thresh and angle_diff < 0.1:  
+                    current_cluster.append(i)
+                else:
+                    if len(current_cluster) >= min_cluster_size:
+                        clusters.append(current_cluster)
+                    current_cluster = [i]
+            
+            prev_index = i
+
+        if len(current_cluster) >= min_cluster_size:
+            clusters.append(current_cluster)
+
+        filtered = [0.0] * len(ranges)
+        for cluster in clusters:
+            for idx in cluster:
+                filtered[idx] = ranges[idx]
+        
+        return filtered
+
+    def callback(self, msg):    
+        ranges = [float('inf')] * self.num_ranges
+
+        for point in pc2.read_points(msg, field_names=("x", "y", "z"), skip_nans=True):
+            x, y, z = point
             if not (self.z_min <= z <= self.z_max):
                 continue
 
@@ -59,7 +98,7 @@ class LivoxToLaserScan:
                         if distance < ranges[index]:
                             ranges[index] = distance
 
-        ranges = self.gaussian_filter(ranges, window_size=5, sigma=1.0)
+        ranges = self.gaussian_filter(ranges, window_size=5, sigma=0.2)
 
         for i in range(len(ranges)):
             if ranges[i] == float('inf'):

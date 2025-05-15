@@ -161,4 +161,3 @@ def process_lidar_frame(lidar_scan, state):
 
         return filtered_pos.T, filtered_vel.T
     return None, None
-sss
