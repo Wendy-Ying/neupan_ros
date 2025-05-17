@@ -31,7 +31,8 @@ import numpy as np
 from neupan.util import get_transform
 import tf
 import sensor_msgs.point_cloud2 as pc2
-from predict import process_lidar_frame
+# from predict import process_lidar_frame
+from get_velocity import process_lidar_frame
 
 class neupan_core:
     def __init__(self) -> None:
@@ -167,8 +168,8 @@ class neupan_core:
 
             points, point_velocities = process_lidar_frame(
                 self.last_scan_msg,
-                self.robot_state
-                # self.helmet_msg
+                self.robot_state,
+                self.helmet_msg
             )
 
             action, info = self.neupan_planner(self.robot_state, points, point_velocities)

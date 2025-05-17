@@ -48,7 +48,7 @@ class HelmetStatePublisher:
 
                     self.pub.publish(msg)
 
-                    rospy.loginfo_throttle(1.0, "x=%.2f y=%.2f | vx=%.2f vy=%.2f",
+                    rospy.loginfo("x=%.2f y=%.2f | vx=%.2f vy=%.2f",
                                            current_pos[0], current_pos[1],
                                            velocity[0], velocity[1])
 
