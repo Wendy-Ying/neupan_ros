@@ -143,6 +143,7 @@ class neupan_core:
                 "robot state received {}".format(self.robot_state.tolist())
             )
 
+            self.neupan_planner.waypoints = find_elevator_goal(self.last_scan_msg)
             if (
                 len(self.neupan_planner.waypoints) >= 1
                 and self.neupan_planner.initial_path is None
