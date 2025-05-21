@@ -38,7 +38,7 @@ def transform_points(points, pose):
 
 def find_elevator_goal(lidar_scan, state):
     if lidar_scan is None:
-        return None
+        return [[0, 0, 0]]
     points = transform_points(lidar_scan, state[:3])
 
     clustering = DBSCAN(eps=0.2, min_samples=5).fit(points)
@@ -60,7 +60,7 @@ def find_elevator_goal(lidar_scan, state):
             people_clusters.append(cluster)
 
     if len(wall_clusters) < 2:
-        return None
+        return [[0, 0, 0]]
 
     for i in range(len(wall_clusters)):
         for j in range(i + 1, len(wall_clusters)):
@@ -99,7 +99,7 @@ def find_elevator_goal(lidar_scan, state):
                     best_idx = np.argmin(scores + (~valid_mask) * 1e6)
                     goal = grid[best_idx].tolist() + [0.0]
                     return [[0, 0, 0], goal]
-    return None
+    return [[0, 0, 0]]
 
 
 def visualize(points, walls, people_clusters, goal):

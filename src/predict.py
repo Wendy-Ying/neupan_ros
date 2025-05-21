@@ -127,6 +127,39 @@ class Tracker:
         self.kf_map = {label: self.kf_map[label] for label in current_labels if label in self.kf_map}
         return np.array(filtered_pos), np.array(filtered_vel)
 
+from sklearn.mixture import GaussianMixture
+
+gmm = GaussianMixture(n_components=3, covariance_type='full', random_state=42)
+gmm.means_ = np.array([[0.0], [0.1], [-0.1]])
+gmm.covariances_ = np.array([[[0.002]], [[0.002]], [[0.002]]])
+gmm.weights_ = np.array([0.4, 0.3, 0.3])
+gmm.precisions_cholesky_ = np.array([[[1/np.sqrt(0.002)]]]*3)
+
+def add_scattered_points(transformed_points, velocities, num_steps=5, step_size=0.1, num_samples=3):
+    predicted_points = []
+    predicted_velocities = []
+
+    for i, (pos, vel) in enumerate(zip(transformed_points, velocities)):
+        speed = np.linalg.norm(vel)
+        if speed > 0.5:
+            direction = vel / speed
+            perp = np.array([-direction[1], direction[0]])
+
+            for j in range(1, num_steps + 1):
+                base_point = pos + direction * step_size * j
+                offset = gmm.sample(1)[0].item()
+                curved_point = base_point + perp * offset
+                predicted_points.append(curved_point)
+                predicted_velocities.append(vel)
+
+    if predicted_points:
+        predicted_points = np.array(predicted_points)
+        predicted_velocities = np.array(predicted_velocities)
+        transformed_points = np.vstack([transformed_points, predicted_points])
+        velocities = np.vstack([velocities, predicted_velocities])
+
+    return transformed_points.T, velocities.T
+
 frame_buffer = []
 time_buffer = []
 tracker = Tracker()
@@ -158,6 +191,8 @@ def process_lidar_frame(lidar_scan, state):
 
         labels = DBSCAN(eps=1, min_samples=2).fit_predict(positions)
         filtered_pos, filtered_vel = tracker.update(positions, vel_vectors, labels)
+
+        transformed_points, velocities = add_scattered_points(filtered_pos, filtered_vel)
 
         return filtered_pos.T, filtered_vel.T
     return None, None
