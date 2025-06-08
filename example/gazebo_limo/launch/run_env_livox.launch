@@ -7,7 +7,7 @@
     <node name="livox_tf_broadcaster" pkg="neupan_ros" type="livox_tf_broadcaster.py" output="screen">
     </node>
 
-    <node name="helmet_velocity" pkg="neupan_ros" type="helmet_velocity.py" output="screen">
-    </node>
+    <!-- <node name="helmet_velocity" pkg="neupan_ros" type="helmet_velocity.py" output="screen">
+    </node> -->
 
 </launch>
