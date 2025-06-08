@@ -36,10 +36,10 @@ def transform_points(points, pose):
         transformed_points = np.empty((0, 2))
     return transformed_points
 
-def find_elevator_goal(lidar_scan, state):
-    if lidar_scan is None:
-        return None
-    points = transform_points(lidar_scan, state[:3])
+def find_elevator_goal(points):
+    # if lidar_scan is None:
+    #     return None
+    # points = transform_points(lidar_scan, state[:3])
 
     clustering = DBSCAN(eps=0.2, min_samples=5).fit(points)
     labels = clustering.labels_
@@ -60,7 +60,7 @@ def find_elevator_goal(lidar_scan, state):
             people_clusters.append(cluster)
 
     if len(wall_clusters) < 2:
-        return None
+        return None, wall_clusters, people_clusters
 
     for i in range(len(wall_clusters)):
         for j in range(i + 1, len(wall_clusters)):
@@ -92,14 +92,15 @@ def find_elevator_goal(lidar_scan, state):
                 people_penalty = np.where(people_dists < 0.3, 1e3 * (0.3 - people_dists)**2, 0)
                 wall_penalty = np.where(wall_dists < 0.25, 1e3 * (0.25 - wall_dists)**2, 0)
 
-                scores = 1.0 * center_deviation + 1.0 * people_penalty + 1.0 * wall_penalty
+                scores = 1.0 * center_deviation + people_penalty + wall_penalty
 
                 valid_mask = (people_dists > 0.2) & (wall_dists > 0.15)
                 if np.any(valid_mask):
                     best_idx = np.argmin(scores + (~valid_mask) * 1e6)
                     goal = grid[best_idx].tolist() + [0.0]
-                    return [[0, 0, 0], goal]
-    return None
+                    return goal, wall_clusters, people_clusters
+
+    return None, wall_clusters, people_clusters
 
 
 def visualize(points, walls, people_clusters, goal):
@@ -121,13 +122,12 @@ def visualize(points, walls, people_clusters, goal):
 
 def main():
     points = simulate_lidar_points()
-    goal = find_elevator_goal(points)
+    goal, wall_clusters, people_clusters = find_elevator_goal(points)
     if goal is not None:
         print(f"Goal found at: {goal}")
-        # visualize(points, [wall1, wall2], people, goal)
     else:
         print("No suitable goal found.")
-        # visualize(points, [], people, None)
+    visualize(points, wall_clusters, people_clusters, goal)
 
 if __name__ == "__main__":
     main()
